@@ -1,0 +1,41 @@
+grammar;
+
+use std::str::FromStr;
+
+use ast::{RegisterAST, NumTypeAST, BitFieldAST, RegisterFieldAST};
+
+Ident: String = r"[a-zA-Z_][a-zA-Z0-9_]*" => String::from(<>);
+
+NumType: NumTypeAST = {
+    "u8" => NumTypeAST::U8,
+    "u16" => NumTypeAST::U16,
+    "u32" => NumTypeAST::U32,
+    "u64" => NumTypeAST::U64,
+};
+
+BitRange: (u8, u8) = {
+    <hi:r"\d+"> ":" <lo:r"\d+"> => (u8::from_str(hi).unwrap(), u8::from_str(lo).unwrap()),
+    r"\d+" => (u8::from_str(<>).unwrap(), u8::from_str(<>).unwrap())
+};
+
+BitField: BitFieldAST = {
+    <name:Ident> "<" <bits:BitRange> ">" ";" => BitFieldAST {
+        name,
+        lo: bits.0,
+        hi: bits.1
+    }
+};
+
+RegisterField: RegisterFieldAST = {
+    <field_type:NumType> "{" <bit_fields:BitField*> "}" => RegisterFieldAST {
+        field_type,
+        bit_fields
+    }
+};
+
+pub Register: RegisterAST = {
+    "register" <name:Ident> "{" <register_fields:RegisterField*> "}" => RegisterAST {
+        name,
+        register_fields
+    }
+};
