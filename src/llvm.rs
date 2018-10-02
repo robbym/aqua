@@ -130,10 +130,23 @@ pub struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn test_add(&self, function: &Function) {
+    pub fn build_ret(&self, val: &Value) {
         unsafe {
-            let val = core::LLVMBuildFAdd(self.ptr, core::LLVMGetParam(function.ptr, 0), core::LLVMGetParam(function.ptr, 1), "val".to_cstr().as_ptr());
-            core::LLVMBuildRet(self.ptr, val);
+            core::LLVMBuildRet(self.ptr, val.ptr);
+        }
+    }
+}
+
+pub struct Value {
+    ptr: LLVMValueRef
+}
+
+impl Value {
+    pub fn const_int32(val: u64) -> Value {
+        unsafe {
+            Value {
+                ptr: core::LLVMConstInt(core::LLVMInt32Type(), val, 0)
+            }
         }
     }
 }

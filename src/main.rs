@@ -6,15 +6,17 @@ mod llvm;
 
 fn main() {
     let module = llvm::Module::new("TestModule");
-    let fadd = module.add_function(
-        "fadd", 
+
+    let entry = module.add_function(
+        "main", 
         &llvm::FunctionType::new(
-            &mut [llvm::Type::Float64, llvm::Type::Float64],
-            llvm::Type::Float64
+            &mut [],
+            llvm::Type::Int32
         )
     );
-    let builder = fadd.append_block().builder();
-    builder.test_add(&fadd);
+
+    let builder = entry.append_block().builder();
+    builder.build_ret(&llvm::Value::const_int32(0));
 
     println!("{}", module);
 }
