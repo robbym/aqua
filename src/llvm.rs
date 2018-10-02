@@ -37,6 +37,16 @@ impl Module {
             }
         }
     }
+
+    pub fn add_global(&self, name: &str, ty: Type) -> GlobalValue {
+        unsafe {
+            GlobalValue(
+                Value {
+                    ptr: core::LLVMAddGlobal(self.ptr, ty.to_llvm_type(), name.to_cstr().as_ptr())
+                }
+            )
+        }
+    }
 }
 
 impl fmt::Display for Module {
@@ -147,6 +157,16 @@ impl Value {
             Value {
                 ptr: core::LLVMConstInt(core::LLVMInt32Type(), val, 0)
             }
+        }
+    }
+}
+
+pub struct GlobalValue(Value);
+
+impl GlobalValue {
+    pub fn set_init(&self, val: Value) {
+        unsafe {
+            core::LLVMSetInitializer(self.0.ptr, val.ptr);
         }
     }
 }

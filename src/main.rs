@@ -7,6 +7,9 @@ mod llvm;
 fn main() {
     let module = llvm::Module::new("TestModule");
 
+    let global = module.add_global("MyGlobal", llvm::Type::Int32);
+    global.set_init(llvm::Value::const_int32(42));
+
     let entry = module.add_function(
         "main", 
         &llvm::FunctionType::new(
