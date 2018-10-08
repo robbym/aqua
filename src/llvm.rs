@@ -2,6 +2,7 @@ use std::ffi;
 use std::fmt;
 use std::ptr;
 use std::marker;
+use std::ops::Deref;
 
 use llvm_sys::prelude::*;
 use llvm_sys::core;
@@ -140,7 +141,7 @@ pub struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn build_ret(&self, val: &Value) {
+    pub fn build_ret<V: Deref<Target=Value>>(&self, val: V) {
         unsafe {
             core::LLVMBuildRet(self.ptr, val.ptr);
         }
@@ -168,5 +169,12 @@ impl GlobalValue {
         unsafe {
             core::LLVMSetInitializer(self.0.ptr, val.ptr);
         }
+    }
+}
+
+impl Deref for GlobalValue {
+    type Target = Value;
+    fn deref(&self) -> &Value {
+        &self.0
     }
 }

@@ -1,8 +1,9 @@
 grammar;
 
 use std::str::FromStr;
+use std::iter;
 
-use ast::{RegisterAST, NumTypeAST, BitFieldAST, RegisterFieldAST};
+use ast::{RegisterAST, NumTypeAST, BitFieldAST, RegisterFieldAST, UnaryOperationAST, BinaryOperationAST, TermAST, ExpressionAST, FunctionAST};
 
 Ident: String = r"[a-zA-Z_][a-zA-Z0-9_]*" => String::from(<>);
 
@@ -37,5 +38,61 @@ pub Register: RegisterAST = {
     "register" <name:Ident> "{" <register_fields:RegisterField*> "}" => RegisterAST {
         name,
         register_fields
+    }
+};
+
+pub UnaryOperation: UnaryOperationAST = {
+    "~" => UnaryOperationAST::BitNot,
+    "!" => UnaryOperationAST::BoolNot,
+    "-" => UnaryOperationAST::Minus
+};
+
+pub BinaryOperation: BinaryOperationAST = {
+    "+" => BinaryOperationAST::Add,
+    "-" => BinaryOperationAST::Minus,
+    "*" => BinaryOperationAST::Multiply,
+    "/" => BinaryOperationAST::Divide,
+    "%" => BinaryOperationAST::Modulo,
+    "&" => BinaryOperationAST::BitAnd,
+    "|" => BinaryOperationAST::BitOr,
+    "^" => BinaryOperationAST::BitXor,
+    "&&" => BinaryOperationAST::BoolAnd,
+    "||" => BinaryOperationAST::BoolOr,
+    "<" => BinaryOperationAST::Less,
+    "<=" => BinaryOperationAST::LessEqual,
+    ">" => BinaryOperationAST::Greater,
+    ">=" => BinaryOperationAST::GreaterEqual,
+    "==" => BinaryOperationAST::Equal
+};
+
+pub Term: TermAST = {
+    Ident => TermAST::Ident(<>)
+};
+
+Factor: Box<ExpressionAST> = {
+    Term => Box::new(ExpressionAST::Term(<>)),
+    "(" <Expression> ")" => <>
+};
+
+pub Expression: Box<ExpressionAST> = {
+    Expression BinaryOperation Factor => Box::new(ExpressionAST::BinaryOperation(<>)),
+    UnaryOperation Factor => Box::new(ExpressionAST::UnaryOperation(<>)),
+    Factor
+};
+
+ParamPair: (NumTypeAST, String) = {
+    <a:NumType> <b:Ident> => (a, b)
+};
+
+ParamList: Vec<(NumTypeAST, String)> = {
+    <head:ParamPair> <rest:("," ParamPair)*> => iter::once(head).chain(rest.into_iter().map(|x|x.1)).collect(),
+    => vec![]
+};
+
+pub Function: FunctionAST = {
+    <ret_type:NumType> <name:Ident> "(" <param_type:ParamList> ")" "{" "}" => FunctionAST {
+        name,
+        ret_type,
+        param_type
     }
 };

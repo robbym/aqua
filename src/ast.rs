@@ -25,6 +25,50 @@ pub struct RegisterAST {
     pub register_fields: Vec<RegisterFieldAST>
 }
 
+#[derive(Debug)]
+pub enum UnaryOperationAST {
+    BitNot,
+    BoolNot,
+    Minus,
+}
+
+#[derive(Debug)]
+pub enum BinaryOperationAST {
+    Add,
+    Minus,
+    Multiply,
+    Divide,
+    Modulo,
+    BitAnd,
+    BitOr,
+    BitXor,
+    BoolAnd,
+    BoolOr,
+    Less,
+    LessEqual,
+    Greater,
+    GreaterEqual,
+    Equal
+}
+
+#[derive(Debug)]
+pub enum TermAST {
+    Ident(String)
+}
+
+#[derive(Debug)]
+pub enum ExpressionAST {
+    Term(TermAST),
+    UnaryOperation(UnaryOperationAST, Box<ExpressionAST>),
+    BinaryOperation(Box<ExpressionAST>, BinaryOperationAST, Box<ExpressionAST>)
+}
+
+#[derive(Debug)]
+pub struct FunctionAST {
+    pub name: String,
+    pub ret_type: NumTypeAST,
+    pub param_type: Vec<(NumTypeAST, String)>
+}
 
     // let parser = aqua::RegisterParser::new().parse("
     // register RCC {
