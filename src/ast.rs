@@ -53,7 +53,9 @@ pub enum BinaryOperationAST {
 
 #[derive(Debug)]
 pub enum TermAST {
-    Ident(String)
+    Ident(String),
+    Number(String),
+    FunctionCall(FunctionCallAST)
 }
 
 #[derive(Debug)]
@@ -61,6 +63,12 @@ pub enum ExpressionAST {
     Term(TermAST),
     UnaryOperation(UnaryOperationAST, Box<ExpressionAST>),
     BinaryOperation(Box<ExpressionAST>, BinaryOperationAST, Box<ExpressionAST>)
+}
+
+#[derive(Debug)]
+pub struct FunctionCallAST {
+    pub name: String,
+    pub args: Vec<Box<ExpressionAST>>
 }
 
 #[derive(Debug)]

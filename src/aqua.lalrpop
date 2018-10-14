@@ -3,9 +3,22 @@ grammar;
 use std::str::FromStr;
 use std::iter;
 
-use ast::{RegisterAST, NumTypeAST, BitFieldAST, RegisterFieldAST, UnaryOperationAST, BinaryOperationAST, TermAST, ExpressionAST, FunctionAST};
+use ast::{
+    RegisterAST,
+    NumTypeAST,
+    BitFieldAST,
+    RegisterFieldAST,
+    UnaryOperationAST,
+    BinaryOperationAST,
+    TermAST,
+    ExpressionAST,
+    FunctionAST,
+    FunctionCallAST
+};
 
 Ident: String = r"[a-zA-Z_][a-zA-Z0-9_]*" => String::from(<>);
+
+Number: String = r"[0-9]+" => String::from(<>);
 
 NumType: NumTypeAST = {
     "u8" => NumTypeAST::U8,
@@ -15,8 +28,8 @@ NumType: NumTypeAST = {
 };
 
 BitRange: (u8, u8) = {
-    <hi:r"\d+"> ":" <lo:r"\d+"> => (u8::from_str(hi).unwrap(), u8::from_str(lo).unwrap()),
-    r"\d+" => (u8::from_str(<>).unwrap(), u8::from_str(<>).unwrap())
+    <hi:Number> ":" <lo:Number> => (u8::from_str(&hi).unwrap(), u8::from_str(&lo).unwrap()),
+    Number => (u8::from_str(&<>).unwrap(), u8::from_str(&<>).unwrap())
 };
 
 BitField: BitFieldAST = {
@@ -65,8 +78,19 @@ pub BinaryOperation: BinaryOperationAST = {
     "==" => BinaryOperationAST::Equal
 };
 
+ExpressionList: Vec<Box<ExpressionAST>> = {
+    <head:Expression> <rest:("," Expression)*> => iter::once(head).chain(rest.into_iter().map(|x|x.1)).collect(),
+    => vec![]
+};
+
+pub FunctionCall: FunctionCallAST = {
+    <name:Ident> "(" <args:ExpressionList> ")" => FunctionCallAST {name, args}
+};
+
 pub Term: TermAST = {
-    Ident => TermAST::Ident(<>)
+    FunctionCall => TermAST::FunctionCall(<>),
+    Ident => TermAST::Ident(<>),
+    Number => TermAST::Number(<>)
 };
 
 Factor: Box<ExpressionAST> = {
