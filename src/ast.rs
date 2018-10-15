@@ -75,14 +75,20 @@ pub struct FunctionCallAST {
 pub struct FunctionAST {
     pub name: String,
     pub ret_type: NumTypeAST,
-    pub param_type: Vec<(NumTypeAST, String)>
+    pub param_type: Vec<(NumTypeAST, String)>,
+    pub stmts: Vec<StatementAST>
 }
 
 #[derive(Debug)]
 pub struct AssignmentAST {
-    pub type_: NumTypeAST,
+    pub type_: Option<NumTypeAST>,
     pub name: String,
     pub value: Box<ExpressionAST>
+}
+
+#[derive(Debug)]
+pub enum StatementAST {
+    Assignment(AssignmentAST)
 }
 
     // let parser = aqua::RegisterParser::new().parse("

@@ -14,7 +14,8 @@ use ast::{
     ExpressionAST,
     FunctionAST,
     FunctionCallAST,
-    AssignmentAST
+    AssignmentAST,
+    StatementAST
 };
 
 Ident: String = r"[a-zA-Z_][a-zA-Z0-9_]*" => String::from(<>);
@@ -120,14 +121,23 @@ ParamList: Vec<(NumTypeAST, String)> = {
     => vec![]
 };
 
+Block: Vec<StatementAST> = {
+    "{" <stmts:Statement*> "}" => stmts
+}
+
 pub Function: FunctionAST = {
-    <ret_type:NumType> <name:Ident> "(" <param_type:ParamList> ")" "{" "}" => FunctionAST {
+    <ret_type:NumType> <name:Ident> "(" <param_type:ParamList> ")" <stmts:Block> => FunctionAST {
         name,
         ret_type,
-        param_type
+        param_type,
+        stmts
     }
 };
 
 pub Assignment: AssignmentAST = {
-    <type_:NumType> <name:Ident> "=" <value:Expression> ";" => AssignmentAST {type_, name, value}
+    <type_:NumType?> <name:Ident> "=" <value:Expression> ";" => AssignmentAST {type_, name, value}
+};
+
+pub Statement: StatementAST = {
+    Assignment => StatementAST::Assignment(<>)
 };
