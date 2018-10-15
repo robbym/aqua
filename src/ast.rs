@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum NumTypeAST {
     U8,
     U16,
