@@ -41,7 +41,7 @@ impl Traversal for TypeCheckContext {
                     let expected_type: NumTypeAST;
                     let evaluated_type: NumTypeAST;
 
-                    let eval_type = if let Some(type_) = assignment.type_ {
+                    if let Some(type_) = assignment.type_ {
                         expected_type = type_;
                         evaluated_type = self.walk_expression(&*assignment.value, type_)?;
                         self.vars.insert(assignment.name.clone(), type_);
