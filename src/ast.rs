@@ -78,6 +78,13 @@ pub struct FunctionAST {
     pub param_type: Vec<(NumTypeAST, String)>
 }
 
+#[derive(Debug)]
+pub struct AssignmentAST {
+    pub type_: NumTypeAST,
+    pub name: String,
+    pub value: Box<ExpressionAST>
+}
+
     // let parser = aqua::RegisterParser::new().parse("
     // register RCC {
     //     u8 {
