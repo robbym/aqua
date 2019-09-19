@@ -1,12 +1,21 @@
-extern crate llvm_sys;
-
 mod aqua;
 mod ast;
-mod llvm;
+mod typecheck;
+
+use typecheck::{Traversal, TypeCheckContext};
 
 fn main() {
-    let res = aqua::ExpressionParser::new().parse("
-        -(-cake || bottle) && (a+b > c) && (z<y)
-    ");
-    println!("{:#?}", res);
+    if let Ok(function) = aqua::FunctionParser::new().parse("
+        u32 main() {
+            u8 my_var = -(-cake || bottle(cake, 1, 2, 3)) && (a+b > c) && (z<y);
+
+            u8 cake = 2;
+            cake = my_var;
+
+        }
+    ") {
+        let mut tc = TypeCheckContext::new();
+        tc.walk_function(&function).unwrap();
+        println!("Hey!");
+    }
 }

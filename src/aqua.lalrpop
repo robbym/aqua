@@ -135,9 +135,9 @@ pub Function: FunctionAST = {
 };
 
 pub Assignment: AssignmentAST = {
-    <type_:NumType?> <name:Ident> "=" <value:Expression> ";" => AssignmentAST {type_, name, value}
+    <type_:NumType?> <name:Ident> "=" <value:Expression> => AssignmentAST {type_, name, value}
 };
 
 pub Statement: StatementAST = {
-    Assignment => StatementAST::Assignment(<>)
+    <assign:Assignment> ";" => StatementAST::Assignment(assign)
 };
